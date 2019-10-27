@@ -2,9 +2,12 @@
 # coding: utf-8
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = "0"
+
 
 config = tf.ConfigProto(
-    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.8)
+    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
     # device_count = {'GPU': 1}
 )
 config.gpu_options.allow_growth = True
@@ -33,7 +36,7 @@ image_gen=ImageDataGenerator(featurewise_center=False,
 # In[50]:
 
 
-image_gen.flow_from_directory("G://major project//Dataset")
+image_gen.flow_from_directory("D://Avinassh//major project//Dataset")
 
 
 # In[51]:
@@ -46,8 +49,9 @@ warnings.filterwarnings('ignore')
 # In[60]:
 
 
-train_image_gen=image_gen.flow_from_directory('G:/major project/Dataset/asl_alphabet_train',batch_size=50,target_size=(200,200),class_mode="binary")
-test_image_gen=image_gen.flow_from_directory('G://major project//Dataset//asl_alphabet_test',batch_size=50,target_size=(200,200),class_mode="binary")
+train_image_gen=image_gen.flow_from_directory('D://Avinassh//major project//Dataset//asl_alphabet_test',batch_size=50,target_size=(200,200),class_mode="binary")
+test_image_gen=image_gen.flow_from_directory('D://Avinassh//major project//Dataset//asl_alphabet_train',batch_size=50,target_size=(200,200),class_mode="binary")
+
 
 
 # In[61]:
@@ -107,5 +111,9 @@ steps_for=56000//50
 validate=28000//50
 
 
-result=model.fit_generator(train_image_gen,epochs=10,steps_per_epoch=steps_for,validation_data=test_image_gen,verbose=1,validation_steps=validate)
+result=model.fit_generator(train_image_gen,epochs=25,steps_per_epoch=steps_for,validation_data=test_image_gen,verbose=1,validation_steps=validate)
 
+model.save('FinalModel.h5') 
+
+classindex=train_image_gen.class_indices
+print(classindex)

@@ -10,7 +10,7 @@ import shutil
 import sys
 import cv2
 
-
+import numpy as np
 # In[5]:
 
 
@@ -25,14 +25,14 @@ def GivenStringReturnNumberInit(strr):
         
 
 #Current folder : where Dataset is present
-dirc="G://major project//Data//asl_alphabet_train"
+dirc="D://Avinassh//major project//data//asl_alphabet_train"
 
 #New Folder in which we store grayscale  train images 
-dirtest="G://major project//Dataset//asl_alphabet_test"
+dirtest="D://Avinassh//major project//Dataset//asl_alphabet_test"
 
 
 #New Folder in which we store grayscale  test images 
-dirtrain="G://major project//Dataset//asl_alphabet_train"
+dirtrain="D://Avinassh//major project//Dataset//asl_alphabet_train"
 
 #Variables used to store Total count of images
 totalCount=0
@@ -55,6 +55,7 @@ for foldername in os.listdir(dirc):
         try:
             img=cv2.imread(dirc+"//"+foldername+"//"+filename)
             img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            img_gray= np.reshape(img_gray,[200,200,3])
             val=int(val)
             if val%3==0:
                 count+=1
