@@ -3,7 +3,7 @@
 
 # In[1]:
 
-
+import random
 import os
 from os import path
 import shutil
@@ -19,6 +19,8 @@ import pickle
 #input of this function is String:"j1230" output of this function is "1230"
 
 class_labels={'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7, 'I': 8, 'J': 9, 'K': 10, 'L': 11, 'M': 12, 'N': 13, 'O': 14, 'P': 15, 'Q': 16, 'R': 17, 'S': 18, 'T': 19, 'U': 20, 'V': 21, 'W': 22, 'X': 23, 'Y': 24, 'Z': 25, 'nothing': 26, 'space': 27}
+
+
 def GivenStringReturnNumberInit(strr):
     ind=0
     for i in range(0,len(strr)):
@@ -36,14 +38,14 @@ def GivenStringReturnLabelInit(strr):
     return strr[:ind]        
 
 #Current folder : where Dataset is present
-dirc="D://Avinassh//major project//data//asl_alphabet_train"
+dirc="G://major project//data//asl_alphabet_train//"
 
 #New Folder in which we store grayscale  train images 
-dirtest="D://Avinassh//major project//Dataset//asl_alphabet_test"
+dirtest="G://major project//dataset//asl_alphabet_test//"
 
 
 #New Folder in which we store grayscale  test images 
-dirtrain="D://Avinassh//major project//Dataset//asl_alphabet_train"
+dirtrain="G://major project//dataset//asl_alphabet_train//"
 
 #Variables used to store Total count of images
 totalCount=0
@@ -54,7 +56,9 @@ X_TrainLabels=[]
 Y_TestImages=[]
 Y_TestLabels=[]
 totaltime=time.clock()
-for foldername in os.listdir("D://Avinassh//major project//data//asl_alphabet_train"):
+
+Test=[]
+for foldername in os.listdir("G://major project//data//asl_alphabet_train//"):
     count=0
     movetra=dirtrain+"//"+foldername
     movedir=dirtest+"//"+foldername
@@ -76,8 +80,11 @@ for foldername in os.listdir("D://Avinassh//major project//data//asl_alphabet_tr
             val=int(val)
             if val%3==0:
                 count+=1
+                
                 X_TrainImages.append(img_gray)
                 X_TrainLabels.append(class_labels[GivenStringReturnLabelInit(filename[:-4])])
+
+                Test.append([img_gray,class_labels[GivenStringReturnLabelInit(filename[:-4])]])
             else:
                 Y_TestImages.append(img_gray)
                 Y_TestLabels.append(class_labels[GivenStringReturnLabelInit(filename[:-4])])
@@ -96,7 +103,7 @@ import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 
 config = tf.ConfigProto(
-    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.8)
+    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
     # device_count = {'GPU': 1}
 )
 config.gpu_options.allow_growth = True
@@ -154,11 +161,11 @@ model.add(Convolution2D(filters=32, kernel_size=(3, 3), padding='same'))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
 model.add(BatchNormalization())
-
+'''
 model.add(Convolution2D(filters=64, kernel_size=(3, 3), padding='same'))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-model.add(BatchNormalization())
+model.add(BatchNormalization())'''
 
 model.add(Convolution2D(filters=64, kernel_size=(3, 3), padding='same'))
 model.add(Activation('relu'))
@@ -184,6 +191,14 @@ model.summary()
 
 # In[65]:
 
+random.shuffle(Test)
+
+X_TrainImages=[]
+X_TrainLabels=[]
+
+for i in range(0,len(Test)):
+    X_TrainImages.append(Test[i][:-1][0])
+    X_TrainLabels.append(Test[i][len(Test[i])-1])
 
 steps_for=56000//50
 validate=28000//50
@@ -192,9 +207,16 @@ y=np.array(X_TrainLabels)
 
 x=x.reshape(-1,200,200,1)
 
-result=model.fit(x,y,epochs=5)
+result=model.fit(x,y,epochs=5,batch_size=100)
 
 
 model.save("FinalModel.h5")
 
 
+x=np.array(Y_TestImages)
+y=np.array(Y_TestLabels)
+
+x=x.reshape(-1,200,200,1)
+score=model.evaluate(x,y)
+
+print("accuracy= ",score[1])
