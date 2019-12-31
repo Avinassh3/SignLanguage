@@ -205,6 +205,9 @@ x=np.array(X_TrainImages)
 y=np.array(X_TrainLabels)
 
 x=x.reshape(-1,200,200,1)
+#try using this statement
+#print(len(x))
+#x=x.reshape(56000,200,200,1)
 
 result=model.fit(x,y,epochs=5,batch_size=50)
 
